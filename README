@@ -1,2 +1,8 @@
+mot_boot_mode it's propietart soft for launch system on Motorola Phone like Milestone, Droid X, Flipout, Charm and other
+It started at boot right after kernel and send system property to socket
+
+tcmd.suspend 0
+
+
 5 July 2011
 First version of mot_boot_mode
