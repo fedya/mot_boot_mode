@@ -14,6 +14,8 @@
 #include <cutils/properties.h>
 #include <cutils/sockets.h>
 
+//TODO add pwr_rsn conditions
+
 /* global definitions*/
 
 #define LOG_TAG "mot_boot_mode"
@@ -28,6 +30,7 @@ int main(int argc, char **argv)
 	LOGI(":MOTO_PUPD: mot_boot_mode %d.%d", ver_major, ver_minor);
 	LOGI(":MOTO_PUPD: cid_recover_boot=0x00");
 
+
 //print content of /proc/bootinfo
 	FILE *f;
 	f = fopen("/proc/bootinfo", "r");
@@ -37,6 +40,7 @@ int main(int argc, char **argv)
 		LOGE("Error at opening '%s'", f);
 		return NULL;
 	}
+
 	while(fgets(str, 128, f))
 		LOGI("%s", str);
 	fclose(f);
