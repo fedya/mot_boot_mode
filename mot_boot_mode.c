@@ -22,6 +22,7 @@
 #define PROPERTY_MOT_BOOT "tcmd.suspend"
 #define PROPERTY_ADB_BOOT "persist.service.adb.enable"
 #define POWER_REASON "0x00004000"
+#define CHARGE_ONLY "0x00003000"
 
 static int ver_major = 0;
 static int ver_minor = 1;
