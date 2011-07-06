@@ -25,7 +25,7 @@
 #define CHARGE_ONLY "0x00003000"
 
 static int ver_major = 0;
-static int ver_minor = 1;
+static int ver_minor = 2;
 
 int main(int argc, char **argv)
 {
