@@ -21,8 +21,9 @@
 #define LOG_TAG "mot_boot_mode"
 #define PROPERTY_MOT_BOOT "tcmd.suspend"
 #define PROPERTY_ADB_BOOT "persist.service.adb.enable"
-#define POWER_REASON "0x00004000"
-#define CHARGE_ONLY "0x00003000"
+#define PROPERTY_SYS_CHRGNLY "sys.chargeonly.mode"
+#define PU_REASON_SW_AP_RESET "0x00004000" //normal boot
+#define PU_REASON_CHARGER "0x00000100" //chargeonly.mode
 
 static int ver_major = 0;
 static int ver_minor = 2;
@@ -51,9 +52,12 @@ int main(int argc, char **argv)
 		d = strstr(str, ":") + 2;
 		LOGI("MOTO PWR_RSN : %s", d);
 	
-		if(!strncmp(d, POWER_REASON, 10)) 
+		if(!strncmp(d, PU_REASON_SW_AP_RESET, 10)) 
 			property_set(PROPERTY_MOT_BOOT, "0");	
-			LOGI("Set tcmd.suspend to 0");
+			LOGI("Normal boot");
+		if(!strncmp(d, PU_REASON_CHARGER, 10)) 
+			property_set(PROPERTY_SYS_CHRGNLY, "1");	
+			LOGI("Charge only mode enabled");
 		}
 	fclose(f);
 	}
