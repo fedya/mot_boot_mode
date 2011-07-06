@@ -14,8 +14,6 @@
 #include <cutils/properties.h>
 #include <cutils/sockets.h>
 
-//TODO add pwr_rsn conditions
-
 /* global definitions*/
 
 #define LOG_TAG "mot_boot_mode"
@@ -33,18 +31,16 @@ int main(int argc, char **argv)
 	LOGI(":MOTO_PUPD: mot_boot_mode %d.%d", ver_major, ver_minor);
 	LOGI(":MOTO_PUPD: cid_recover_boot=0x00");
 
-
 //print content of /proc/bootinfo
+
 	FILE *f;
 	f = fopen("/proc/bootinfo", "r");
 	char str[128];
 	char *d;
 	if (!f) {
-	
 		LOGE("Error at opening '%s'", f);
 		return NULL;
 	}
-
 	while(fgets(str, 128, f)){
 		LOGI("%s", str);
 	d = strstr(str, "POWERUPREASON");
@@ -52,12 +48,14 @@ int main(int argc, char **argv)
 		d = strstr(str, ":") + 2;
 		LOGI("MOTO PWR_RSN : %s", d);
 	
-		if(!strncmp(d, PU_REASON_SW_AP_RESET, 10)) 
+		if(!strncmp(d, PU_REASON_SW_AP_RESET, 10)) {
 			property_set(PROPERTY_MOT_BOOT, "0");	
 			LOGI("Normal boot");
-		if(!strncmp(d, PU_REASON_CHARGER, 10)) 
+		}
+		if(!strncmp(d, PU_REASON_CHARGER, 10)) {
 			property_set(PROPERTY_SYS_CHRGNLY, "1");	
 			LOGI("Charge only mode enabled");
+		}
 		}
 	fclose(f);
 	}
