@@ -22,6 +22,10 @@
 #define PROPERTY_SYS_CHRGNLY "sys.chargeonly.mode"
 #define PU_REASON_SW_AP_RESET "0x00004000" //normal boot
 #define PU_REASON_CHARGER "0x00000100" //chargeonly.mode
+/*cid_recover_boot contains the flag to indicate whether phone should boot into recover mode or not.*/
+#define PU_REASON_CID_NORMAL "0x00"
+
+
 
 static int ver_major = 0;
 static int ver_minor = 2;
@@ -55,6 +59,9 @@ int main(int argc, char **argv)
 		if(!strncmp(d, PU_REASON_CHARGER, 10)) {
 			property_set(PROPERTY_SYS_CHRGNLY, "1");	
 			LOGI("Charge only mode enabled");
+		}
+		if(!strncmp(d, PU_REASON_CID_NORMAL, 4)) {
+		LOGI(":MOTO_PUPD: cid_recover_boot= %s", d);
 		}
 		}
 	fclose(f);
