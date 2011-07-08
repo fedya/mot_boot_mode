@@ -31,7 +31,7 @@ static const char* enable_adb(void){
 	FILE *fp;
 	fp = fopen("/dev/usb_device_mode", "w");
 	if (!fp) {
-		LOGE("Error at opening file", fp);
+		LOGE("Error at opening file");
 		return NULL;
 	}
 	fprintf(fp, "msc_adb");
@@ -55,7 +55,7 @@ return NULL;
 
 int get_bootinfo(void){
         FILE *f;
-	char *bootin;
+	char *bootin = NULL;
         char str[256];
 	f = fopen("/proc/bootinfo", "r");
         if (!f) {
