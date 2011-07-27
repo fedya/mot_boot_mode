@@ -22,6 +22,7 @@
 #define PROPERTY_SYS_CHRGNLY "sys.chargeonly.mode"
 #define PU_REASON_SW_AP_RESET "0x00004000" //normal boot
 #define PU_REASON_PWR_KEY_PRESS "0x00000080" //pwr key pressed - normal boot
+#define PU_REASON_USB_CABLE "0x00000010" //pwr key pressed - normal boot
 #define PU_REASON_CHARGER "0x00000100" //chargeonly.mode
 #define PU_REASON_CID_NORMAL "0x00"
 
@@ -64,21 +65,31 @@ int get_bootinfo(void){
                 return NULL;
         }
 	while(fgets(str, 128, f)){
+	
 	if(bootin = parse(str, "POWERUPREASON", PU_REASON_SW_AP_RESET)) {
 	LOGI(":MOTO: pwr_rsn:%s", bootin);
 	property_set(PROPERTY_MOT_BOOT, "0");
 	LOGI(":MOTO: Normal boot");
 	}		
+	
 	if(bootin = parse(str, "POWERUPREASON", PU_REASON_PWR_KEY_PRESS)) {
 	LOGI(":MOTO: pwr_rsn:%s", bootin);
 	property_set(PROPERTY_MOT_BOOT, "0");
 	LOGI(":MOTO: Power Key was pressed will start normal boot process");
 	}		
+	
 	if(bootin = parse(str, "POWERUPREASON", PU_REASON_CHARGER)){ 
 	LOGI(":MOTO: pwr_rsn chargemode:%s", bootin);
 	property_set(PROPERTY_SYS_CHRGNLY, "1");
 	LOGI("Charge only mode enabled");
 	}
+	
+	if(bootin = parse(str, "POWERUPREASON", PU_REASON_USB_CABLE)){ 
+	LOGI(":MOTO: pwr_rsn usb cable connected:%s", bootin);
+	property_set(PROPERTY_MOT_BOOT, "0");
+	LOGI("Usb cable connected now boot");
+	}
+	
 	if(bootin = parse(str, "CID_RECOVER_BOOT", PU_REASON_CID_NORMAL)) {
 	LOGI(":MOTO: cid_recover_boot:%s", bootin);
 	}}
