@@ -27,7 +27,7 @@
 #define PU_REASON_CID_NORMAL "0x00"
 
 static int ver_major = 0;
-static int ver_minor = 3;
+static int ver_minor = 4;
 
 static const char* enable_adb(void){
 	FILE *fp;
