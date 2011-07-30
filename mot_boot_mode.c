@@ -38,6 +38,14 @@ static const char* enable_adb(void){
 	}
 	fprintf(fp, "msc_adb");
 	fclose(fp);
+	if (property_get("persist.service.adb.enable", "0")){
+		LOGI("adb service off");
+		property_set("persist.service.adb.enable", "1");
+		}
+	else {
+		LOGI("adb service on");
+	}
+	
 	LOGI("ADB Enabled");
 	return NULL;
 }
