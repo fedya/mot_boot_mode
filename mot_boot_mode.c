@@ -30,6 +30,7 @@ static int ver_major = 0;
 static int ver_minor = 4;
 
 static const char* enable_adb(void){
+	char value[PROPERTY_VALUE_MAX];
 	FILE *fp;
 	fp = fopen("/dev/usb_device_mode", "w");
 	if (!fp) {
@@ -38,12 +39,13 @@ static const char* enable_adb(void){
 	}
 	fprintf(fp, "msc_adb");
 	fclose(fp);
-	if (property_get("persist.service.adb.enable", "0")){
+	if (property_get("persist.service.adb.enable", value, 0)) {
 		LOGI("adb service off");
 		property_set("persist.service.adb.enable", "1");
-		}
+	}
 	else {
-		LOGI("adb service on");
+		property_get("persist.service.adb.enable", value, 1);
+		LOGI("adb service already enabled");
 	}
 	
 	LOGI("ADB Enabled");
