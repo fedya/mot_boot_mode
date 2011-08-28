@@ -8,6 +8,8 @@
 #include <cutils/properties.h>
 #include <cutils/log.h>
 
+
+#define LOG_TAG "mot_boot_mode"
 #define MOTO_PU_REASON_CHARGE_ONLY    "0x00000100" 
 #define MOTO_CID_RECOVER_BOOT	      "0x01"
 #define MOTO_DATA_12M		      "1"
@@ -20,6 +22,7 @@ static int ver_minor = 6;
  * Return value:
  * Type: int
  * 1: charge_only_mode
+ * 2: enable adb at boot
  * 0: NOT charge_only_mode 
  ********************************************************************/
 
@@ -27,6 +30,7 @@ int enable_adb(void){
 	char value[PROPERTY_VALUE_MAX];
 	FILE *fp;
 	fp = fopen("/dev/usb_device_mode", "w");
+
 	if (!fp) {
 		LOGE("Error at opening file");
 		return NULL;
@@ -42,7 +46,6 @@ int enable_adb(void){
 		property_get("persist.service.adb.enable", value, 1);
 		LOGD("adb service already enabled");
 	}
-	LOGD("ADB Enabled");
 	return NULL;
 	}
 
@@ -54,18 +57,18 @@ int boot_reason_charge_only(void)
 
 
     fd = open("/proc/bootinfo", O_RDONLY);
-    if (fd < 0) return 0;
+    if (fd < 0) return NULL;
 
     n = read(fd, data, 1023);
     close(fd);
-    if (n < 0) return 0;
+    if (n < 0) return NULL;
 
     data[n] = '\0';
 
     memset(powerup_reason, 0, 32);
 
     pwrup_rsn = strstr(data, "POWERUPREASON");
-    LOGD("MOTO : pwr_rsn = %s\n", pwrup_rsn);
+    LOGD("MOTO : pwr_rsn = %s", pwrup_rsn);
     if (pwrup_rsn) {
         x = strstr(pwrup_rsn, ": ");
         if (x) {
@@ -77,14 +80,14 @@ int boot_reason_charge_only(void)
                 if (n == 31) break;
             }
             powerup_reason[n] = '\0';
-            LOGD("MOTO_PUPD: powerup_reason=%s\n", powerup_reason);
+            LOGD("MOTO_PUPD: powerup_reason=%s", powerup_reason);
         }
     }
     if (!strncmp(powerup_reason, MOTO_PU_REASON_CHARGE_ONLY, 
 		 		(sizeof(MOTO_PU_REASON_CHARGE_ONLY)-1)))
 	return 1; 
     else 
-	return 0; 
+	return NULL; 
 }
 
 /********************************************************************
@@ -103,15 +106,15 @@ int check_cid_recover_boot(void)
     memset(cid_recover_boot, 0, 32);
     
     fd = open("/proc/bootinfo", O_RDONLY);
-    if (fd < 0) return 0;
+    if (fd < 0) return NULL;
    
     n = read(fd, data, 1023);
     close(fd);
-    if (n < 0) return 0;
+    if (n < 0) return NULL;
 
     data[n] = '\0';
 
-    m_bmode = strstr(data, "\nCID_RECOVER_BOOT");
+    m_bmode = strstr(data, "CID_RECOVER_BOOT");
     if (m_bmode) {
         x = strstr(m_bmode, ": ");
         if (x) {
@@ -123,7 +126,7 @@ int check_cid_recover_boot(void)
                 if (n == 31) break;
             }
             cid_recover_boot[n] = '\0';
-            LOGD("MOTO_PUPD: cid_recover_boot=%s\n", cid_recover_boot);
+            LOGD("MOTO_PUPD: cid_recover_boot=%s", cid_recover_boot);
         }
     }
     
@@ -131,7 +134,7 @@ int check_cid_recover_boot(void)
 		 		(sizeof(MOTO_CID_RECOVER_BOOT)-1)))
 	return 1; 
     else 
-	return 0; 
+	return NULL; 
 }
 
 /********************************************************************
@@ -145,7 +148,7 @@ int check_data_12m(void)
 {
     /*TODO: This 12m feature for TCMD need to be locked down*/
     /*and implemented by TCMD team */
-    return 0;
+    return NULL;
 }
 
 /********************************************************************
@@ -155,31 +158,32 @@ int check_data_12m(void)
  * TODO: Is the priority/order right?
  ********************************************************************/
 int main(int argc, char **argv)
-{    
-    LOGD("MOTO_PUPD: mot_boot_mode", ver_major, ver_minor);
+{   
+    LOGD("MOTO_PUPD: mot_boot_mode %d.%d", ver_major, ver_minor);
+    enable_adb();
 
     if (check_cid_recover_boot()){
 
-        LOGD("MOTO_PUPD: check_cid_recover_boot: 1\n");
+        LOGD("MOTO_PUPD: check_cid_recover_boot: 1");
         property_set("tcmd.cid.recover.boot", "1");
         property_set("tcmd.suspend", "1");
 
     }else if (boot_reason_charge_only()){
 
-    	LOGD("MOTO_PUPD: boot_reason_charge_only: 1\n");
+    	LOGD("MOTO_PUPD: boot_reason_charge_only: 1");
         property_set("sys.chargeonly.mode", "1");
 
     }else if (check_data_12m()){
 
-        LOGD("MOTO_PUPD: mot_boot_mode 12m: 1\n");
+        LOGD("MOTO_PUPD: mot_boot_mode 12m: 1");
         property_set("tcmd.12m.test", "1");
         property_set("tcmd.suspend", "1");
 
     }else{
 
-       	LOGD("MOTO_PUPD: mot_boot_mode 12m: 0\n");
+       	LOGD("MOTO_PUPD: mot_boot_mode 12m: 0");
        	property_set("tcmd.suspend", "0");
     }
 
-    return 0;
+    return NULL;
 }
