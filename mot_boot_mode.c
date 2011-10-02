@@ -6,12 +6,9 @@
 #include <ctype.h>
 
 #include <cutils/properties.h>
+#define LOG_TAG "mot_boot_mode"
 #include <cutils/log.h>
 
-#define PROPERTY_ADB_PHONE            "ro.usb_mode"
-
-
-#define LOG_TAG "mot_boot_mode"
 #define MOTO_PU_REASON_CHARGE_ONLY    "0x00000100" 
 #define MOTO_CID_RECOVER_BOOT	      "0x01"
 #define MOTO_DATA_12M		      "1"
@@ -42,15 +39,16 @@ int enable_adb(void){
 	
 	if (property_get("persist.service.adb.enable", value, 0)) {
 		LOGD("ADB status is - %s ", value);
-/* property_set with adb enable needed for first launch of system */
+/* property_set with adb enable needed for first launch of system or adb on boot will be disabled*/
 		property_set("persist.service.adb.enable", "1");
 	}
-	else {
-		property_get("persist.service.adb.enable", value, 1);
+	
+	if (property_get("persist.service.adb.enable", value, "1")){
 		LOGD("adb service already enabled");
 	}
 	return 0;
 	}
+
 
 int boot_reason_charge_only(void)
 {
