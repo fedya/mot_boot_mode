@@ -8,6 +8,8 @@
 #include <cutils/properties.h>
 #include <cutils/log.h>
 
+#define PROPERTY_ADB_PHONE            "ro.usb_mode"
+
 
 #define LOG_TAG "mot_boot_mode"
 #define MOTO_PU_REASON_CHARGE_ONLY    "0x00000100" 
@@ -33,20 +35,21 @@ int enable_adb(void){
 
 	if (!fp) {
 		LOGE("Error at opening file");
-		return NULL;
+		return 0;
 	}
 	fprintf(fp, "msc_adb");
 	fclose(fp);
 	
 	if (property_get("persist.service.adb.enable", value, 0)) {
-		LOGD("getprop return that adb disabled now");
+		LOGD("ADB status is - %s ", value);
+/* property_set with adb enable needed for first launch of system */
 		property_set("persist.service.adb.enable", "1");
 	}
 	else {
 		property_get("persist.service.adb.enable", value, 1);
 		LOGD("adb service already enabled");
 	}
-	return NULL;
+	return 0;
 	}
 
 int boot_reason_charge_only(void)
@@ -57,11 +60,11 @@ int boot_reason_charge_only(void)
 
 
     fd = open("/proc/bootinfo", O_RDONLY);
-    if (fd < 0) return NULL;
+    if (fd < 0) return 0;
 
     n = read(fd, data, 1023);
     close(fd);
-    if (n < 0) return NULL;
+    if (n < 0) return 0;
 
     data[n] = '\0';
 
@@ -87,7 +90,7 @@ int boot_reason_charge_only(void)
 		 		(sizeof(MOTO_PU_REASON_CHARGE_ONLY)-1)))
 	return 1; 
     else 
-	return NULL; 
+	return 0; 
 }
 
 /********************************************************************
@@ -106,11 +109,11 @@ int check_cid_recover_boot(void)
     memset(cid_recover_boot, 0, 32);
     
     fd = open("/proc/bootinfo", O_RDONLY);
-    if (fd < 0) return NULL;
+    if (fd < 0) return 0;
    
     n = read(fd, data, 1023);
     close(fd);
-    if (n < 0) return NULL;
+    if (n < 0) return 0;
 
     data[n] = '\0';
 
@@ -134,7 +137,7 @@ int check_cid_recover_boot(void)
 		 		(sizeof(MOTO_CID_RECOVER_BOOT)-1)))
 	return 1; 
     else 
-	return NULL; 
+	return 0; 
 }
 
 /********************************************************************
@@ -148,7 +151,7 @@ int check_data_12m(void)
 {
     /*TODO: This 12m feature for TCMD need to be locked down*/
     /*and implemented by TCMD team */
-    return NULL;
+    return 0;
 }
 
 /********************************************************************
@@ -161,7 +164,6 @@ int main(int argc, char **argv)
 {   
     LOGD("MOTO_PUPD: mot_boot_mode %d.%d", ver_major, ver_minor);
     enable_adb();
-
     if (check_cid_recover_boot()){
 
         LOGD("MOTO_PUPD: check_cid_recover_boot: 1");
@@ -185,5 +187,5 @@ int main(int argc, char **argv)
        	property_set("tcmd.suspend", "0");
     }
 
-    return NULL;
+    return 0;
 }
